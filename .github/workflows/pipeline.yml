@@ -1,38 +1,36 @@
-name: Portfolio Allocator & Risk Pipeline
+name: Portfolio Allocator Pipeline
 
 on:
-  schedule:
-    - cron: '0 22 * * *'
+  push:
+    branches: [ main ]
   workflow_dispatch:
 
 jobs:
-  build-and-run:
+  build:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout Repository
-        uses: actions/checkout@v3
+      - uses: actions/checkout@v4
 
-      - name: Set up Python 3.10
-        uses: actions/setup-python@v4
+      - name: Set up Python
+        uses: actions/setup-python@v5
         with:
           python-version: '3.10'
 
-      - name: Install Dependencies
+      - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
-          pip install -r requirements.txt
+          pip install numpy pandas scipy matplotlib pytest
 
-      - name: Run Pytest Test Suite
-        run: |
-          pytest tests/ -v
+      - name: Run tests
+        run: pytest
 
-      - name: Execute Optimization & Render Analytics
-        run: |
-          python src/allocator.py
+      - name: Generate Visual Artifact
+        run: python src/allocator.py
 
-      - name: Commit and Push Updated Visual Artifacts
+      - name: Commit and Push Chart
         run: |
-          git config --local user.email "jamesruga07@gmail.com"
-          git config --local user.name "jamesruga"
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
           git add portfolio_allocation.png
-          git diff --quiet && git diff --staged --quiet || (git commit -m "auto: update portfolio allocation analytics [skip ci]" && git push)
+          git commit -m "chore: auto-update portfolio allocation chart [skip ci]" || true
+          git push
