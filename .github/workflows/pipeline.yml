@@ -1,0 +1,38 @@
+name: Portfolio Allocator & Risk Pipeline
+
+on:
+  schedule:
+    - cron: '0 22 * * *'
+  workflow_dispatch:
+
+jobs:
+  build-and-run:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v3
+
+      - name: Set up Python 3.10
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.10'
+
+      - name: Install Dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
+      - name: Run Pytest Test Suite
+        run: |
+          pytest tests/ -v
+
+      - name: Execute Optimization & Render Analytics
+        run: |
+          python src/allocator.py
+
+      - name: Commit and Push Updated Visual Artifacts
+        run: |
+          git config --local user.email "jamesruga07@gmail.com"
+          git config --local user.name "jamesruga"
+          git add portfolio_allocation.png
+          git diff --quiet && git diff --staged --quiet || (git commit -m "auto: update portfolio allocation analytics [skip ci]" && git push)
