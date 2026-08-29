@@ -8,6 +8,8 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
     steps:
       - uses: actions/checkout@v4
 
@@ -22,7 +24,7 @@ jobs:
           pip install numpy pandas scipy matplotlib pytest
 
       - name: Run tests
-        run: pytest
+        run: python -m pytest
 
       - name: Generate Visual Artifact
         run: python src/allocator.py
